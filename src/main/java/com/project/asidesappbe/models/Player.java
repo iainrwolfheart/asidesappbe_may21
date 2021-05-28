@@ -4,13 +4,17 @@ import org.bson.types.ObjectId;
 import org.json.JSONObject;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.util.Collection;
+import java.util.Set;
 
 @Document(collection = "asidesPlayers")
-public class Player {
+public class Player implements UserDetails {
 		
 	@Id
 	@GeneratedValue
@@ -22,6 +26,11 @@ public class Player {
 	private String email;
 	private String password;
 	private int rating;
+	private Set<? extends GrantedAuthority> grantedAuthorities;
+	private boolean isAccountNonExpired;
+	private boolean isAccountNonLocked;
+	private boolean isCredentialsNonExpired;
+	private boolean isEnabled;
 
 	public Player(){}
 	
@@ -75,6 +84,14 @@ public class Player {
 		this.email = email;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 	public int getRating() {
 		return rating;
 	}
@@ -82,13 +99,30 @@ public class Player {
 	public void setRating(int rating) {
 		this.rating = rating;
 	}
-	
-	public String getPassword() {
-		return password;
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return null;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
+	@Override
+	public boolean isAccountNonExpired() {
+		return false;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return false;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return false;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return false;
 	}
 
 	@Override
