@@ -25,12 +25,12 @@ public class Player implements UserDetails {
 	private String username;
 	private String email;
 	private String password;
-	private int rating;
+	private int rating = 50;
 	private Set<? extends GrantedAuthority> grantedAuthorities;
-	private boolean isAccountNonExpired;
-	private boolean isAccountNonLocked;
-	private boolean isCredentialsNonExpired;
-	private boolean isEnabled;
+	private boolean isAccountNonExpired = true;
+	private boolean isAccountNonLocked = true;
+	private boolean isCredentialsNonExpired = true;
+	private boolean isEnabled = true;
 
 	public Player(){}
 	
@@ -43,7 +43,6 @@ public class Player implements UserDetails {
 	public Player(String username, String email, String password) {
 		this(email, password);
 		this.username = username;
-		this.rating = 50; // THIS IS NOT WORKING...
 	}
 	
 	//LOGIN
@@ -128,15 +127,14 @@ public class Player implements UserDetails {
 	@Override
 	public String toString () {
 		JSONObject playerObject = new JSONObject();
-		playerObject.put("_playerId", _playerId.toString());
-		playerObject.put("username", username);
-		playerObject.put("email", email);
-		playerObject.put("rating", rating);
-
 		try {
+			playerObject.put("_playerId", _playerId.toString());
+			playerObject.put("username", username);
+			playerObject.put("email", email);
+			playerObject.put("rating", rating);
 			playerObject.put("_groupId", _groupId.toString());
 		} catch (NullPointerException npe) {
-			System.out.println("Setting _groupId to Player upon sign up. "
+			System.out.println("Something is null in the Player Object..."
 					+ npe.getMessage());
 		}
 		return playerObject.toString();

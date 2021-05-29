@@ -48,8 +48,8 @@ public class PlayerController {
 
     @PostMapping(value = RouteConstants.REGISTER_ENDPOINT)
     ResponseEntity<String> register(@Valid @RequestBody Player player) {
-        return ResponseEntity.status(200).body("This works!");
-//		return playerService.registerPlayer(player);
+//        return ResponseEntity.status(200).body("This works!");
+		return playerService.registerPlayer(player);
     }
 
     @GetMapping(path = "{id}")

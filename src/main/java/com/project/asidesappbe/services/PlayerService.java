@@ -6,10 +6,15 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
-public class PlayerService {
+public class PlayerService implements UserDetailsService {
 
     @Autowired
     private PlayerRepository playerRepository;
@@ -47,7 +52,7 @@ public class PlayerService {
     }
 
     public ResponseEntity<String> registerPlayer(Player playerToSignUp) {
-        if (playerRepository.findByEmail(playerToSignUp.getEmail()) != null) {
+        if (userExists(playerToSignUp.getUsername())) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body("User already exists.");
@@ -60,7 +65,24 @@ public class PlayerService {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .header("token", jwtService.generateToken(playerToSignUp))
+//                .header("token", jwtService.generateToken(playerToSignUp))
                 .body(playerToSignUp.toString());
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        final Optional<Player> foundPlayer = playerRepository.findByUsername(username);
+
+        if (foundPlayer.isPresent()) return foundPlayer.get();
+
+        else throw new UsernameNotFoundException("Username not found by loadUserByUsername method.");
+    }
+
+    /*
+    Currently only checks username uniqueness, NOT email...
+     */
+    private boolean userExists(String username) {
+        return playerRepository.findByUsername(username).isPresent();
     }
 }
