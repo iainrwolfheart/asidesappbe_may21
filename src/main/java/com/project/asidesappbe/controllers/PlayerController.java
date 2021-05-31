@@ -5,7 +5,6 @@ import com.project.asidesappbe.models.Player;
 import com.project.asidesappbe.models.TestPlayerModel;
 import com.project.asidesappbe.repositories.PlayerRepository;
 import com.project.asidesappbe.services.JwtService;
-import com.project.asidesappbe.services.PasswordService;
 import com.project.asidesappbe.services.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +33,6 @@ public class PlayerController {
     @Autowired
     private PlayerService playerService;
     @Autowired
-    private PasswordService passwordService;
-    @Autowired
     private JwtService jwtService;
 
     Player foundPlayerDetails;
@@ -48,7 +45,6 @@ public class PlayerController {
 
     @PostMapping(value = RouteConstants.REGISTER_ENDPOINT)
     ResponseEntity<String> register(@Valid @RequestBody Player player) {
-//        return ResponseEntity.status(200).body("This works!");
 		return playerService.registerPlayer(player);
     }
 

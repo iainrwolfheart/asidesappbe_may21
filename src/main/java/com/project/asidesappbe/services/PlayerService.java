@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,7 +20,7 @@ public class PlayerService implements UserDetailsService {
     @Autowired
     private PlayerRepository playerRepository;
     @Autowired
-    private PasswordService passwordService;
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private JwtService jwtService;
 
@@ -35,7 +36,7 @@ public class PlayerService implements UserDetailsService {
                     .body("Unsuccessful login: Email not found.");
         }
         else {
-            Boolean isPasswordCorrect = passwordService.isCorrectPassword(playerToLogin.getPassword(), foundPlayerDetails.getPassword());
+            Boolean isPasswordCorrect = passwordEncoder.matches(playerToLogin.getPassword(), foundPlayerDetails.getPassword());
 
             if (!isPasswordCorrect) {
                 return ResponseEntity
@@ -59,7 +60,7 @@ public class PlayerService implements UserDetailsService {
         }
 
         playerToSignUp.set_playerId(ObjectId.get());
-        playerToSignUp.setPassword(passwordService.encryptUserPassword(playerToSignUp.getPassword()));
+        playerToSignUp.setPassword(passwordEncoder.encode(playerToSignUp.getPassword()));
 
         playerRepository.save(playerToSignUp);
 
