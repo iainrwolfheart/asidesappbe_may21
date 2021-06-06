@@ -39,8 +39,7 @@ public class PlayerController {
 
     @PostMapping(value = RouteConstants.LOGIN_ENDPOINT)
     ResponseEntity<String> login(@Valid @RequestBody Player player) {
-        return ResponseEntity.status(200).body("This works!");
-//		return playerService.loginPlayer(player);
+		return playerService.loginPlayer(player);
     }
 
     @PostMapping(value = RouteConstants.REGISTER_ENDPOINT)

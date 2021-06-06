@@ -104,6 +104,10 @@ public class Player implements UserDetails {
 		return null;
 	}
 
+	public void setAuthorities(Set<? extends GrantedAuthority> authorities) {
+		this.grantedAuthorities = authorities;
+	}
+
 	@Override
 	public boolean isAccountNonExpired() {
 		return false;

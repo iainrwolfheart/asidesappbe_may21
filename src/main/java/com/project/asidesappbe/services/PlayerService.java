@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static com.project.asidesappbe.security.PlayerRole.GROUPADMIN;
+
 @Service
 public class PlayerService implements UserDetailsService {
 
@@ -52,6 +54,9 @@ public class PlayerService implements UserDetailsService {
         }
     }
 
+    /*
+    Currently sets all registering users to GROUP_ADMIN privileges
+     */
     public ResponseEntity<String> registerPlayer(Player playerToSignUp) {
         if (userExists(playerToSignUp.getUsername())) {
             return ResponseEntity
@@ -61,7 +66,7 @@ public class PlayerService implements UserDetailsService {
 
         playerToSignUp.set_playerId(ObjectId.get());
         playerToSignUp.setPassword(passwordEncoder.encode(playerToSignUp.getPassword()));
-
+        playerToSignUp.setAuthorities(GROUPADMIN.getGrantedAuthorities());
         playerRepository.save(playerToSignUp);
 
         return ResponseEntity
