@@ -30,15 +30,15 @@ public class PlayerService implements UserDetailsService {
 
     public ResponseEntity<String> loginPlayer(Player playerToLogin) {
         //		ADD OPTION FOR USER TO ENTER USERNAME INSTEAD OF EMAIL! - MODEL
-        foundPlayerDetails = playerRepository.findByEmail(playerToLogin.getEmail());
+        Optional<Player> foundPlayerDetails = loadUserByEmail(playerToLogin.getEmail());
 
-        if (foundPlayerDetails == null) {
+        if (!foundPlayerDetails.isPresent()) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body("Unsuccessful login: Email not found.");
         }
         else {
-            Boolean isPasswordCorrect = passwordEncoder.matches(playerToLogin.getPassword(), foundPlayerDetails.getPassword());
+            Boolean isPasswordCorrect = passwordEncoder.matches(playerToLogin.getPassword(), foundPlayerDetails.get().getPassword());
 
             if (!isPasswordCorrect) {
                 return ResponseEntity
@@ -83,6 +83,15 @@ public class PlayerService implements UserDetailsService {
         if (foundPlayer.isPresent()) return foundPlayer.get();
 
         else throw new UsernameNotFoundException("Username not found by loadUserByUsername method.");
+    }
+
+    public Optional<Player> loadUserByEmail(String username) throws UsernameNotFoundException {
+
+        final Optional<Player> foundPlayer = playerRepository.findByEmail(username);
+
+        if (foundPlayer.isPresent()) return foundPlayer;
+
+        else throw new UsernameNotFoundException("Email not found by loadUserByEmail method.");
     }
 
     /*

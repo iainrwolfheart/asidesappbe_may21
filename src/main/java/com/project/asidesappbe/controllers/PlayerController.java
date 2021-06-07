@@ -8,6 +8,7 @@ import com.project.asidesappbe.services.JwtService;
 import com.project.asidesappbe.services.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -38,6 +39,7 @@ public class PlayerController {
     Player foundPlayerDetails;
 
     @PostMapping(value = RouteConstants.LOGIN_ENDPOINT)
+    @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
     ResponseEntity<String> login(@Valid @RequestBody Player player) {
 		return playerService.loginPlayer(player);
     }

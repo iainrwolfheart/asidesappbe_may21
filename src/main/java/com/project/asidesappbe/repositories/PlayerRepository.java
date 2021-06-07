@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface PlayerRepository extends MongoRepository<Player, ObjectId> {
 
-	Player findByEmail(String email);
+    Optional<Player> findByEmail(String email);
     @Query(value="{'_id' : ?0 }")
     Player findBy_playerId(String _playerId);
     Player findBy_playerId(ObjectId _playerId);
