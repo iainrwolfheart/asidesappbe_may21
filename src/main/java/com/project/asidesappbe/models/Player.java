@@ -67,6 +67,7 @@ public class Player implements UserDetails {
 		this._groupId = _groupId;
 	}
 
+	@Override
 	public String getUsername() {
 		return username;
 	}
@@ -83,6 +84,7 @@ public class Player implements UserDetails {
 		this.email = email;
 	}
 
+	@Override
 	public String getPassword() {
 		return password;
 	}
@@ -101,7 +103,7 @@ public class Player implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return null;
+		return grantedAuthorities;
 	}
 
 	public void setAuthorities(Set<? extends GrantedAuthority> authorities) {
@@ -110,22 +112,22 @@ public class Player implements UserDetails {
 
 	@Override
 	public boolean isAccountNonExpired() {
-		return false;
+		return isAccountNonExpired;
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		return false;
+		return isAccountNonLocked;
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return false;
+		return isCredentialsNonExpired;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return false;
+		return isEnabled;
 	}
 
 	@Override

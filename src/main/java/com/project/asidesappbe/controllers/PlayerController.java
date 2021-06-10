@@ -40,6 +40,7 @@ public class PlayerController {
 
     @PostMapping(value = RouteConstants.LOGIN_ENDPOINT)
     @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
+//            ("hasAuthority('player:admin')")
     ResponseEntity<String> login(@Valid @RequestBody Player player) {
 		return playerService.loginPlayer(player);
     }

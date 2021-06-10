@@ -85,9 +85,9 @@ public class PlayerService implements UserDetailsService {
         else throw new UsernameNotFoundException("Username not found by loadUserByUsername method.");
     }
 
-    public Optional<Player> loadUserByEmail(String username) throws UsernameNotFoundException {
+    public Optional<Player> loadUserByEmail(String email) throws UsernameNotFoundException {
 
-        final Optional<Player> foundPlayer = playerRepository.findByEmail(username);
+        final Optional<Player> foundPlayer = playerRepository.findByEmail(email);
 
         if (foundPlayer.isPresent()) return foundPlayer;
 
