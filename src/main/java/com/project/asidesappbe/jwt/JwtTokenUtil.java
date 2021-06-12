@@ -1,8 +1,10 @@
 package com.project.asidesappbe.jwt;
 
+import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public class JwtTokenUtil {
@@ -15,13 +17,21 @@ public class JwtTokenUtil {
 
     protected String generateNewToken(Authentication authenticatedUser) {
         Map<String, Object> claims = new HashMap<>();
-//        Call tokenGenerator(claims, authenticatedUser)
-        return "token";
+        return tokenGenerator(claims, authenticatedUser);
     }
 
     private String tokenGenerator(Map<String, Object> claims, Authentication authenticatedUser) {
 //        Make a new token, obvs
-        return "token";
+        String token = Jwts.builder()
+                .setSubject(authenticatedUser.getName())
+                .claim("authorities", authenticatedUser.getAuthorities())
+                .setIssuedAt(new Date())
+                .setExpiration(java.sql.Date
+                        .valueOf(LocalDate.now()
+                                .plusDays(jwtConfig.getTokenValidityTimeInDays())))
+                .signWith(jwtConfig.getSecretKeySha())
+                .compact();
+        return token;
     }
 
     protected boolean isValidToken(String tokenToValidate) {
