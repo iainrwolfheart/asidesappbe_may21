@@ -25,12 +25,12 @@ public class Player implements UserDetails {
 	private String username;
 	private String email;
 	private String password;
-	private int rating;
+	private int rating = 50;
 	private Set<? extends GrantedAuthority> grantedAuthorities;
-	private boolean isAccountNonExpired;
-	private boolean isAccountNonLocked;
-	private boolean isCredentialsNonExpired;
-	private boolean isEnabled;
+	private boolean isAccountNonExpired = true;
+	private boolean isAccountNonLocked = true;
+	private boolean isCredentialsNonExpired = true;
+	private boolean isEnabled = true;
 
 	public Player(){}
 	
@@ -43,7 +43,6 @@ public class Player implements UserDetails {
 	public Player(String username, String email, String password) {
 		this(email, password);
 		this.username = username;
-		this.rating = 50; // THIS IS NOT WORKING...
 	}
 	
 	//LOGIN
@@ -68,6 +67,7 @@ public class Player implements UserDetails {
 		this._groupId = _groupId;
 	}
 
+	@Override
 	public String getUsername() {
 		return username;
 	}
@@ -84,6 +84,7 @@ public class Player implements UserDetails {
 		this.email = email;
 	}
 
+	@Override
 	public String getPassword() {
 		return password;
 	}
@@ -102,41 +103,44 @@ public class Player implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return null;
+		return grantedAuthorities;
+	}
+
+	public void setAuthorities(Set<? extends GrantedAuthority> authorities) {
+		this.grantedAuthorities = authorities;
 	}
 
 	@Override
 	public boolean isAccountNonExpired() {
-		return false;
+		return isAccountNonExpired;
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		return false;
+		return isAccountNonLocked;
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return false;
+		return isCredentialsNonExpired;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return false;
+		return isEnabled;
 	}
 
 	@Override
 	public String toString () {
 		JSONObject playerObject = new JSONObject();
-		playerObject.put("_playerId", _playerId.toString());
-		playerObject.put("username", username);
-		playerObject.put("email", email);
-		playerObject.put("rating", rating);
-
 		try {
+			playerObject.put("_playerId", _playerId.toString());
+			playerObject.put("username", username);
+			playerObject.put("email", email);
+			playerObject.put("rating", rating);
 			playerObject.put("_groupId", _groupId.toString());
 		} catch (NullPointerException npe) {
-			System.out.println("Setting _groupId to Player upon sign up. "
+			System.out.println("Something is null in the Player Object..."
 					+ npe.getMessage());
 		}
 		return playerObject.toString();

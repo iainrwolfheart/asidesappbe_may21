@@ -6,12 +6,17 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
+/*
+This needs tidying!
+ */
 @Repository
 public interface PlayerRepository extends MongoRepository<Player, ObjectId> {
 
-	Player findByEmail(String email);
+    Optional<Player> findByEmail(String email);
     @Query(value="{'_id' : ?0 }")
     Player findBy_playerId(String _playerId);
     Player findBy_playerId(ObjectId _playerId);
-    Player findByUsername(String username);
+    Optional<Player> findByUsername(String username);
 }
