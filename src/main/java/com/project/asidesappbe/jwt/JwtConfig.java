@@ -31,8 +31,16 @@ public class JwtConfig {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+    }
+
     public Integer getTokenValidityTimeInDays() {
         return tokenValidityTimeInDays;
+    }
+
+    public void setTokenValidityTimeInDays(Integer tokenValidityTimeInDays) {
+        this.tokenValidityTimeInDays = tokenValidityTimeInDays;
     }
 
     public String getAuthorizationHeader() {
@@ -42,4 +50,9 @@ public class JwtConfig {
     public String getBearerPrefix() {
         return bearerPrefix;
     }
+
+    public void setBearerPrefix(String bearerPrefix) {
+        this.bearerPrefix = bearerPrefix;
+    }
+
 }
