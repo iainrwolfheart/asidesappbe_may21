@@ -1,5 +1,6 @@
 package com.project.asidesappbe.jwt;
 
+import com.google.common.base.Strings;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -10,13 +11,25 @@ import java.io.IOException;
 
 public class JwtTokenValidityVerifier extends OncePerRequestFilter {
 
+    private final JwtConfig jwtConfig;
+
+    public JwtTokenValidityVerifier(JwtConfig jwtConfig) {
+        this.jwtConfig = jwtConfig;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
 
 //        get header from request using jwtconfig->header
+        String authorizationHeader = httpServletRequest.getHeader(jwtConfig.getAuthorizationHeader());
 //        Check it's !null && starts with "Bearer "
+        if (Strings.isNullOrEmpty(authorizationHeader) || !authorizationHeader.startsWith(jwtConfig.getBearerPrefix())) {
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
+            return;
+        }
 //        Trim the header to obtain the token
+        String tokenToValidate = authorizationHeader.replace(jwtConfig.getBearerPrefix(), "");
 //        Parse claims
 //        Parse username from claims
 //        Parse authorities from claims
