@@ -23,8 +23,8 @@ public class PlayerService implements UserDetailsService {
     private PlayerRepository playerRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private JwtService jwtService;
+//    @Autowired
+//    private JwtService jwtService;
 
     Player foundPlayerDetails;
 
@@ -48,7 +48,7 @@ public class PlayerService implements UserDetailsService {
             else {
                 return ResponseEntity
                         .status(HttpStatus.OK)
-                        .header("Token", jwtService.generateToken(playerToLogin))
+//                        .header("Token", jwtService.generateToken(playerToLogin))
                         .body(foundPlayerDetails.toString());
             }
         }
@@ -97,7 +97,7 @@ public class PlayerService implements UserDetailsService {
     /*
     Currently only checks username uniqueness, NOT email...
      */
-    private boolean userExists(String username) {
+    public boolean userExists(String username) {
         return playerRepository.findByUsername(username).isPresent();
     }
 }

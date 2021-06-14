@@ -4,7 +4,6 @@ import com.project.asidesappbe.constants.RouteConstants;
 import com.project.asidesappbe.models.Player;
 import com.project.asidesappbe.models.TestPlayerModel;
 import com.project.asidesappbe.repositories.PlayerRepository;
-import com.project.asidesappbe.services.JwtService;
 import com.project.asidesappbe.services.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,14 +32,13 @@ public class PlayerController {
     private PlayerRepository playerRepository;
     @Autowired
     private PlayerService playerService;
-    @Autowired
-    private JwtService jwtService;
+//    @Autowired
+//    private JwtService jwtService;
 
     Player foundPlayerDetails;
 
     @PostMapping(value = RouteConstants.LOGIN_ENDPOINT)
     @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
-//            ("hasAuthority('player:admin')")
     ResponseEntity<String> login(@Valid @RequestBody Player player) {
 		return playerService.loginPlayer(player);
     }

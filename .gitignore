@@ -14,6 +14,8 @@ target/
 .sts4-cache
 
 application-jwt.properties
+application-test.properties
+application-jwt-test.properties
 
 ### IntelliJ IDEA ###
 .idea

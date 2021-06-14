@@ -1,17 +1,27 @@
 package com.project.asidesappbe.jwt;
 
+import com.project.asidesappbe.services.PlayerService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
+@Component
 public class JwtTokenUtil {
 
+    private final PlayerService playerService;
     private final JwtConfig jwtConfig;
 
-    public JwtTokenUtil(JwtConfig jwtConfig) {
+    public JwtTokenUtil(PlayerService playerService, JwtConfig jwtConfig) {
+        this.playerService = playerService;
         this.jwtConfig = jwtConfig;
     }
 
@@ -34,39 +44,51 @@ public class JwtTokenUtil {
         return token;
     }
 
-    protected boolean isValidToken(String tokenToValidate) {
-//        Call getUsername
-//        Check username matches in DB and token !expired
-        return false;
+    protected boolean isValidToken(String token) {
+        String username = getUsernameFromToken(token);
+        return playerService.userExists(username) && !isTokenExpired(token);
     }
 
-    private boolean isTokenExpired(String tokenToValidate) {
-//        Call getExpirationTime
-//        Check exp time against Now()
-        return false;
+    private boolean isTokenExpired(String token) {
+        Date expirationDateTime = getExpirationDateTimeFromToken(token);
+        return expirationDateTime.before(new Date());
     }
 
-    private String getUsernameFromToken(String token) {
-//        Call extractSpecifiedClaim w/token and claim resolver
-        return "token";
+    public String getUsernameFromToken(String token) {
+        return extractSpecifiedClaim(token, Claims::getSubject);
     }
 
-    private Date getExpirationDateFromToken(String token) {
-//        Call extractSpecifiedClaim w/token and claim resolver
-        return new Date();
+    private Date getExpirationDateTimeFromToken(String token) {
+        return extractSpecifiedClaim(token, Claims::getExpiration);
     }
 
-    private Set<SimpleGrantedAuthority> getUserGrantedAuthoritiesFromToken(String token) {
-//        Call extractSpecifiedClaim w/token and claim resolver
-        return new HashSet<>();
-    }
-
-//    private <T> T extractSpecifiedClaim(String token, Function<Claims, T> claimsResolver) {
-//        Call getAllClaimsFromToken(token)
-//        Extract claim using resolver and return
+    /*
+    Needs completing... How to extract custom claim..?
+     */
+//    private Set<SimpleGrantedAuthority> getUserGrantedAuthoritiesFromToken(String token) {
+////        Call extractSpecifiedClaim w/token and claim resolver
+//        return new HashSet<>();
 //    }
 
-//    private Claims getAllClaimsFromToken(String token) {
-//        return nothing;
-//    }
+    private <T> T extractSpecifiedClaim(String token, Function<Claims, T> claimsResolver) {
+        Jws<Claims> jws = getAllClaimsFromToken(token);
+        return claimsResolver.apply(jws.getBody());
+    }
+
+    /*
+    More usable error handling needed here, probs
+     */
+    public Jws<Claims> getAllClaimsFromToken(String token) {
+        Jws<Claims> parsedJwt = null;
+
+        try {
+            parsedJwt = Jwts.parserBuilder()
+                    .setSigningKey(jwtConfig.getSecretKeySha())
+                    .build()
+                    .parseClaimsJws(token);
+        } catch (JwtException jwtException) {
+            System.out.println("Jwt parsing error: " + jwtException.getMessage());
+        }
+        return parsedJwt;
+    }
 }

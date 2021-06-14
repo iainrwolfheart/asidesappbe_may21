@@ -20,10 +20,8 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
     private final JwtTokenUtil jwtTokenUtil;
 
     public JwtUsernameAndPasswordAuthenticationFilter(AuthenticationManager authenticationManager,
-                                                      AuthenticationManager authenticationManager1,
                                                       JwtConfig jwtConfig, JwtTokenUtil jwtTokenUtil) {
-        super(authenticationManager);
-        this.authenticationManager = authenticationManager1;
+        this.authenticationManager = authenticationManager;
         this.jwtConfig = jwtConfig;
         this.jwtTokenUtil = jwtTokenUtil;
     }
