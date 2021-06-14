@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 @Component
@@ -26,12 +24,10 @@ public class JwtTokenUtil {
     }
 
     protected String generateNewToken(Authentication authenticatedUser) {
-        Map<String, Object> claims = new HashMap<>();
-        return tokenGenerator(claims, authenticatedUser);
+        return tokenGenerator(authenticatedUser);
     }
 
-    private String tokenGenerator(Map<String, Object> claims, Authentication authenticatedUser) {
-//        Make a new token, obvs
+    private String tokenGenerator(Authentication authenticatedUser) {
         String token = Jwts.builder()
                 .setSubject(authenticatedUser.getName())
                 .claim("authorities", authenticatedUser.getAuthorities())
@@ -54,7 +50,7 @@ public class JwtTokenUtil {
         return expirationDateTime.before(new Date());
     }
 
-    public String getUsernameFromToken(String token) {
+    private String getUsernameFromToken(String token) {
         return extractSpecifiedClaim(token, Claims::getSubject);
     }
 
@@ -78,17 +74,14 @@ public class JwtTokenUtil {
     /*
     More usable error handling needed here, probs
      */
-    public Jws<Claims> getAllClaimsFromToken(String token) {
+    private Jws<Claims> getAllClaimsFromToken(String token) throws JwtException {
         Jws<Claims> parsedJwt = null;
 
-        try {
-            parsedJwt = Jwts.parserBuilder()
-                    .setSigningKey(jwtConfig.getSecretKeySha())
-                    .build()
-                    .parseClaimsJws(token);
-        } catch (JwtException jwtException) {
-            System.out.println("Jwt parsing error: " + jwtException.getMessage());
-        }
+        parsedJwt = Jwts.parserBuilder()
+                .setSigningKey(jwtConfig.getSecretKeySha())
+                .build()
+                .parseClaimsJws(token);
+
         return parsedJwt;
     }
 }

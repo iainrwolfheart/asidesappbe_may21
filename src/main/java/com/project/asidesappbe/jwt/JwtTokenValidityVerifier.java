@@ -1,6 +1,7 @@
 package com.project.asidesappbe.jwt;
 
 import com.google.common.base.Strings;
+import io.jsonwebtoken.JwtException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -30,12 +31,18 @@ public class JwtTokenValidityVerifier extends OncePerRequestFilter {
         }
 //        Trim the header to obtain the token
         String tokenToValidate = authorizationHeader.replace(jwtConfig.getBearerPrefix(), "");
+
 //        Parse claims
 //        Parse username from claims
 //        Parse authorities from claims
 //        Get user details
 //        Check username == username?? - playerService.loadByUsername()
 //        Check authorities == authorities??
+        try {
+//            Check if token is valid here
+        } catch (JwtException jwte) { //Thrown by the JwtToken.getAllClaims... method
+//            Handle untrusted token here, Iain
+        }
 //        Set Authentication
 //        Set Security Context Holder
 

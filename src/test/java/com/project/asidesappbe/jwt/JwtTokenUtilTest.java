@@ -2,8 +2,7 @@ package com.project.asidesappbe.jwt;
 
 import com.project.asidesappbe.models.Player;
 import com.project.asidesappbe.services.PlayerService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,8 +12,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.util.HashSet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,28 +47,33 @@ class JwtTokenUtilTest {
         jwtTokenUtil = new JwtTokenUtil(playerService, jwtConfig);
         testToken = jwtTokenUtil.generateNewToken(testAuthentication);
     }
-/*
-How to make private methods testable in isolation?
- */
-    @Test
-    @DisplayName("GetAllClaims should return all claims from token")
-    void testGetAllClaimsFromToken() {
-        Jws<Claims> jws = jwtTokenUtil.getAllClaimsFromToken(testToken);
-        System.out.println(jws.toString());
-        assertEquals(jws.getBody().getSubject(), "testPlayer");
-    }
-
-    @Test
-    @DisplayName("extractSpecifiedClaim should return claim specified as parameter")
-    void testExtractSpecifiedClaimReturnsRequiredClaim() {
-        assertEquals("testPlayer", jwtTokenUtil.getUsernameFromToken(testToken));
-    }
 
     @Test
     @DisplayName("Test a valid token passes expiry check")
     void testValidTokenPassesExpirationChecks() {
         when(playerService.userExists("testPlayer")).thenReturn(true);
         assertTrue(jwtTokenUtil.isValidToken(testToken));
+    }
+
+    @Test
+    @DisplayName("An expired token should throw a JwtException.")
+    void testExpiredTokenThrowsException() {
+        when(playerService.userExists("testPlayer")).thenReturn(true);
+        this.jwtConfig.setTokenValidityTimeInDays(0);
+        String failToken = jwtTokenUtil.generateNewToken(testAuthentication);
+        try {
+            Boolean isValidToken = jwtTokenUtil.isValidToken(failToken);
+        fail();
+        } catch(JwtException jwte) {
+            System.out.println("Test failed expectedly, well done. " + jwte.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("A token should fail validity checks when the Claim username doesn't exist in DB.")
+    void testValidityCheckReturnsFalseWhenUsernameNotFound() {
+        when(playerService.userExists("testPlayer")).thenReturn(false);
+        assertFalse(jwtTokenUtil.isValidToken(testToken));
     }
 
 }
