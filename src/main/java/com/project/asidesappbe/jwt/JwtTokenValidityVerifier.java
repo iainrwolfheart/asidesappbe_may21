@@ -13,9 +13,11 @@ import java.io.IOException;
 public class JwtTokenValidityVerifier extends OncePerRequestFilter {
 
     private final JwtConfig jwtConfig;
+    private final JwtTokenUtil jwtTokenUtil;
 
-    public JwtTokenValidityVerifier(JwtConfig jwtConfig) {
+    public JwtTokenValidityVerifier(JwtConfig jwtConfig, JwtTokenUtil jwtTokenUtil) {
         this.jwtConfig = jwtConfig;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     @Override
@@ -39,8 +41,8 @@ public class JwtTokenValidityVerifier extends OncePerRequestFilter {
 //        Check username == username?? - playerService.loadByUsername()
 //        Check authorities == authorities??
         try {
-//            Check if token is valid here
-        } catch (JwtException jwte) { //Thrown by the JwtToken.getAllClaims... method
+            Boolean isvalidtoken = jwtTokenUtil.isValidToken(tokenToValidate);
+        } catch (JwtException jwte) { //Thrown by the JwtTokenUtil.getAllClaims...() method in validation attempt
 //            Handle untrusted token here, Iain
         }
 //        Set Authentication

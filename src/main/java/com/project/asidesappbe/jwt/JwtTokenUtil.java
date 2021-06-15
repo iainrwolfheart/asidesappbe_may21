@@ -6,11 +6,16 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenUtil {
@@ -28,6 +33,7 @@ public class JwtTokenUtil {
     }
 
     private String tokenGenerator(Authentication authenticatedUser) {
+        System.out.println(authenticatedUser.getAuthorities().toString());
         String token = Jwts.builder()
                 .setSubject(authenticatedUser.getName())
                 .claim("authorities", authenticatedUser.getAuthorities())
@@ -58,17 +64,27 @@ public class JwtTokenUtil {
         return extractSpecifiedClaim(token, Claims::getExpiration);
     }
 
-    /*
-    Needs completing... How to extract custom claim..?
-     */
-//    private Set<SimpleGrantedAuthority> getUserGrantedAuthoritiesFromToken(String token) {
-////        Call extractSpecifiedClaim w/token and claim resolver
-//        return new HashSet<>();
-//    }
-
     private <T> T extractSpecifiedClaim(String token, Function<Claims, T> claimsResolver) {
         Jws<Claims> jws = getAllClaimsFromToken(token);
         return claimsResolver.apply(jws.getBody());
+    }
+
+    /*
+    Needs completing properly... How to extract custom claim w/same pattern..?
+     */
+    protected Set<SimpleGrantedAuthority> getUserGrantedAuthoritiesFromToken(String token) {
+//        Call extractSpecifiedClaim w/token and claim resolver
+        var authoritiesAsStringList = (List<Map<String, String>>) extractAuthoritiesClaim(token);
+        Set<SimpleGrantedAuthority> grantedAuthorities = authoritiesAsStringList
+                .stream()
+                .map(entry -> new SimpleGrantedAuthority(entry.get("authority")))
+                .collect(Collectors.toSet());
+        return grantedAuthorities;
+    }
+
+    private Object extractAuthoritiesClaim(String token) {
+        Claims claims = getAllClaimsFromToken(token).getBody();
+        return claims.get("authorities");
     }
 
     /*
@@ -81,7 +97,7 @@ public class JwtTokenUtil {
                 .setSigningKey(jwtConfig.getSecretKeySha())
                 .build()
                 .parseClaimsJws(token);
-
+        System.out.println(parsedJwt.toString());
         return parsedJwt;
     }
 }

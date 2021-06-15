@@ -12,6 +12,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.util.HashSet;
 
+import static com.project.asidesappbe.security.PlayerRole.GROUPADMIN;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,6 +36,7 @@ class JwtTokenUtilTest {
     @BeforeEach
     void initTestVars() {
         testPlayer = new Player("testPlayer", "testPlayer@email.com", "testPassword");
+        testPlayer.setAuthorities(GROUPADMIN.getGrantedAuthorities());
         testAuthentication = new UsernamePasswordAuthenticationToken(
                 testPlayer.getUsername(),
                 testPlayer.getPassword(),
