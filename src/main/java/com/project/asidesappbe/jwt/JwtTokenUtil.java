@@ -17,6 +17,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/*
+Current implementation parses JWT for each use case, e.g. isValid, getAuthorities.
+May need more performant option...
+ */
 @Component
 public class JwtTokenUtil {
 
@@ -33,7 +37,6 @@ public class JwtTokenUtil {
     }
 
     private String tokenGenerator(Authentication authenticatedUser) {
-        System.out.println(authenticatedUser.getAuthorities().toString());
         String token = Jwts.builder()
                 .setSubject(authenticatedUser.getName())
                 .claim("authorities", authenticatedUser.getAuthorities())
@@ -75,6 +78,7 @@ public class JwtTokenUtil {
     protected Set<SimpleGrantedAuthority> getUserGrantedAuthoritiesFromToken(String token) {
 //        Call extractSpecifiedClaim w/token and claim resolver
         var authoritiesAsStringList = (List<Map<String, String>>) extractAuthoritiesClaim(token);
+        System.out.println(authoritiesAsStringList.toString());
         Set<SimpleGrantedAuthority> grantedAuthorities = authoritiesAsStringList
                 .stream()
                 .map(entry -> new SimpleGrantedAuthority(entry.get("authority")))
@@ -88,7 +92,7 @@ public class JwtTokenUtil {
     }
 
     /*
-    More usable error handling needed here, probs
+    Better error handling needed here, probs
      */
     private Jws<Claims> getAllClaimsFromToken(String token) throws JwtException {
         Jws<Claims> parsedJwt = null;
@@ -97,7 +101,9 @@ public class JwtTokenUtil {
                 .setSigningKey(jwtConfig.getSecretKeySha())
                 .build()
                 .parseClaimsJws(token);
-        System.out.println(parsedJwt.toString());
+        if (parsedJwt == null) throw new JwtException("Exception getting claims from token: ");
+
         return parsedJwt;
     }
 }
+

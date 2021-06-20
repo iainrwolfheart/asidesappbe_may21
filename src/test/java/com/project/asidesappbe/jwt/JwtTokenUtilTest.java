@@ -8,9 +8,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.test.context.TestPropertySource;
 
-import java.util.HashSet;
+import java.util.Set;
 
 import static com.project.asidesappbe.security.PlayerRole.GROUPADMIN;
 import static org.junit.Assert.*;
@@ -40,7 +41,7 @@ class JwtTokenUtilTest {
         testAuthentication = new UsernamePasswordAuthenticationToken(
                 testPlayer.getUsername(),
                 testPlayer.getPassword(),
-                new HashSet<>());
+                testPlayer.getAuthorities());
         playerService = mock(PlayerService.class);
         this.jwtConfig = new JwtConfig();
         this.jwtConfig.setSecretKey("securesecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecuresecureafmate");
@@ -78,4 +79,10 @@ class JwtTokenUtilTest {
         assertFalse(jwtTokenUtil.isValidToken(testToken));
     }
 
+    @Test
+    @DisplayName("Test granted authorities can be parsed from token")
+    void testGrantedAuthoritiesParsedFromToken() {
+        Set<? extends GrantedAuthority> authorities = jwtTokenUtil.getUserGrantedAuthoritiesFromToken(testToken);
+        assertTrue(authorities != null);
+    }
 }
