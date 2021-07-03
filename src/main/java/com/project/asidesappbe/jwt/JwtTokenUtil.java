@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -47,6 +48,14 @@ public class JwtTokenUtil {
                 .signWith(jwtConfig.getSecretKeySha())
                 .compact();
         return token;
+    }
+
+    protected Authentication createNewAuthenticationFromValidToken(String token) {
+        return new UsernamePasswordAuthenticationToken(
+                getUsernameFromToken(token),
+                null,
+                getUserGrantedAuthoritiesFromToken(token)
+        );
     }
 
     protected boolean isValidToken(String token) {

@@ -2,6 +2,7 @@ package com.project.asidesappbe.jwt;
 
 import com.google.common.base.Strings;
 import io.jsonwebtoken.JwtException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -24,36 +25,31 @@ public class JwtTokenValidityVerifier extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-//        get header from request using jwtconfig->header
         String authorizationHeader = httpServletRequest.getHeader(jwtConfig.getAuthorizationHeader());
-//        Check it's !null && starts with "Bearer "
+
         if (Strings.isNullOrEmpty(authorizationHeader) || !authorizationHeader.startsWith(jwtConfig.getBearerPrefix())) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
-//        Trim the header to obtain the token
+
         String tokenToValidate = authorizationHeader.replace(jwtConfig.getBearerPrefix(), "");
 
-//        Parse claims
-//        Parse username from claims
-//        Parse authorities from claims
-//        Get user details
 //        Check username == username?? - playerService.loadByUsername()
 //        Check authorities == authorities??
         try {
             Boolean isvalidtoken = jwtTokenUtil.isValidToken(tokenToValidate);
         } catch (JwtException jwte) { //Thrown by the JwtTokenUtil.getAllClaims...() method in validation attempt
-//            Handle untrusted token here, Iain
+//            Better error handling needed here...
+            System.out.println("Token cannot be trusted: " + jwte.getMessage());
         }
-//        Set Authentication
-//        Set Security Context Holder
 
-//        Generate new token with updated exp date
-//        Set token to response header
+        SecurityContextHolder.getContext().setAuthentication(
+                jwtTokenUtil.createNewAuthenticationFromValidToken(tokenToValidate));
+
+        filterChain.doFilter(httpServletRequest, httpServletResponse);
 
 //        Create Mongo Collection of in-use tokens
 //        Ability to delete tokens once expired
 //        Add to collection when new ones created.
-
     }
 }

@@ -2,6 +2,7 @@ package com.project.asidesappbe.security;
 
 import com.project.asidesappbe.jwt.JwtConfig;
 import com.project.asidesappbe.jwt.JwtTokenUtil;
+import com.project.asidesappbe.jwt.JwtTokenValidityVerifier;
 import com.project.asidesappbe.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import com.project.asidesappbe.services.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,17 +11,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static com.project.asidesappbe.security.PlayerRole.GROUPADMIN;
-import static com.project.asidesappbe.security.PlayerRole.GROUPPLAYER;
-
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final PasswordEncoder passwordEncoder;
@@ -51,17 +51,20 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig, jwtTokenUtil))
+                .addFilter(
+                        new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(),
+                                jwtConfig,
+                                jwtTokenUtil)
+                )
+                .addFilterAfter(
+                        new JwtTokenValidityVerifier(jwtConfig, jwtTokenUtil),
+                        JwtUsernameAndPasswordAuthenticationFilter.class
+                )
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/v1/players/register", "/api/v1/players/login")
+                .antMatchers(HttpMethod.POST, "/api/v1/players/register")
                 .permitAll()
-                .antMatchers(HttpMethod.GET, "/api/v1/players/getall")
-                .hasAnyRole(GROUPPLAYER.name(), GROUPADMIN.name())
-//                .permitAll()
                 .anyRequest()
-                .authenticated()
-                .and()
-                .httpBasic();
+                .authenticated();
     }
 
     @Override

@@ -28,9 +28,6 @@ class JwtTokenUtilTest {
     private static PlayerService playerService;
     private JwtConfig jwtConfig;
 
-//    Create a mock token
-//    Test claims parsed from token
-
     /*
     Need to clean this up. Override JwtConfig properties?
      */
