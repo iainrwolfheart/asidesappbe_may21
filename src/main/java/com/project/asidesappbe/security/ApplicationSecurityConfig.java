@@ -37,13 +37,6 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         this.jwtTokenUtil = jwtTokenUtil;
     }
 
-    /*
-    Ok so getting a forbidden on login now.
-    And token is not yet being added as a response header on signup.
-    Could have something to do with auth pattern.
-    Need to make sure token is generated at login and reg...
-     */
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
