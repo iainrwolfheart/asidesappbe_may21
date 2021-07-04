@@ -57,8 +57,17 @@ public class GroupService {
 
         groupToUpdateList.addOrRemovePlayer(playerToUpdate.get_playerId());
 
+//        NEED TO UPDATE PLAYERBY ADDING OR REMOVING GROUPID!!
+        playerToUpdate.addOrRemoveGroupId(groupToUpdateList.get_groupId());
+
         groupRepository.save(groupToUpdateList);
         playerRepository.save(playerToUpdate);
+
+//        Send UpdateGroupReq to playerservice
+//        If player's groupId == null, set
+//        else if it == req.groupid, remove
+//        else groupId mismatch (something has gone wrong)
+//        save updated player in repository
 
         return ResponseEntity
                 .status(HttpStatus.OK)

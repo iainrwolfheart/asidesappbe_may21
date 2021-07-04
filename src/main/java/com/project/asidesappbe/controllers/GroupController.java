@@ -9,13 +9,14 @@ import com.project.asidesappbe.services.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("/groups")
+@RequestMapping("api/v1/groups")
 public class GroupController {
 
     @Autowired
@@ -30,6 +31,7 @@ public class GroupController {
     including the invite code and list of _playerIds toString
      */
     @PostMapping(value = RouteConstants.CREATE_ENDPOINT)
+    @PreAuthorize("hasRole('ROLE_GROUPADMIN')")
     ResponseEntity<String> createGroup(@Valid @RequestBody CreateGroupRequest groupToCreate) {
         return groupService.createGroupAndSaveIdToPlayer(groupToCreate);
     }

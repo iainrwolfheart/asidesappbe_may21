@@ -28,6 +28,9 @@ public class PlayerService implements UserDetailsService {
 
     Player foundPlayerDetails;
 
+    /*
+    Redundant method now w/Spring Security??
+     */
     public ResponseEntity<String> loginPlayer(Player playerToLogin) {
         //		ADD OPTION FOR USER TO ENTER USERNAME INSTEAD OF EMAIL! - MODEL
         Optional<Player> foundPlayerDetails = loadUserByEmail(playerToLogin.getEmail());
