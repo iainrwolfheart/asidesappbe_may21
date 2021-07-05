@@ -40,12 +40,14 @@ public class GroupController {
     Returns updated group details, including list of _playerIds tostring
      */
     @PutMapping(value = RouteConstants.UPDATEGROUPPLAYERS)
+    @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
     ResponseEntity<String> addOrRemoveGroupPlayer(
             @Valid @RequestBody UpdateGroupPlayersRequest request) {
         return groupService.addOrRemovePlayerIdInGroupObject(request);
     }
 
     @GetMapping(value = RouteConstants.GETBYID_ENDPOINT + "/{_groupId}")
+    @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
     ResponseEntity<String> getGroupById(@Valid @PathVariable String _groupId) {
 //        Catch fringe case of unknown _groupId being passed in -> NullPointerException thrown
         return ResponseEntity
@@ -59,6 +61,7 @@ public class GroupController {
     details. When new user confirms to join group, use _groupId in addOrRemove... endpoint.
      */
     @GetMapping(value = RouteConstants.GETGROUPBYINVITECODE_ENDPOINT + "/{inviteCode}")
+    @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
     ResponseEntity<String> getGroupByInviteCode(@Valid @PathVariable String inviteCode) {
 //        Catch less fringe case of unknown inviteCode being passed in -> NullPointerException thrown
         return ResponseEntity
@@ -68,6 +71,7 @@ public class GroupController {
 
 //    Delete Group Endpoint needs to remove _groupId from all players
     @DeleteMapping(value = RouteConstants.DELETEBYID_ENDPOINT + "/{_groupId}")
+    @PreAuthorize("hasRole('ROLE_GROUPADMIN')")
     ResponseEntity<String> deleteGroup(@Valid @PathVariable String _groupId) {
         return groupService.removeGroup(_groupId);
     }
