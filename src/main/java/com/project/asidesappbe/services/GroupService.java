@@ -21,6 +21,8 @@ public class GroupService {
     GroupRepository groupRepository;
     @Autowired
     PlayerRepository playerRepository;
+    @Autowired
+    PlayerService playerService;
 
     public ResponseEntity<String> createGroupAndSaveIdToPlayer(@Valid CreateGroupRequest groupToCreate) {
         Player playerToUpdate = playerRepository.findBy_playerId(groupToCreate.get_playerId());
@@ -47,25 +49,31 @@ public class GroupService {
         playerToUpdate.set_groupId(newGroup.get_groupId());
         playerRepository.save(playerToUpdate);
     }
-    public ResponseEntity<String> addOrRemovePlayerIdInGroupObject(@Valid UpdateGroupPlayersRequest request) {
-//      Handle fringe case of _groupId not found -> NullPointerException
 
-//      If player already assigned a _groupId, they are not assigned to a new group...
+    public ResponseEntity<String> addPlayerToGroup(@Valid UpdateGroupPlayersRequest request) {
 
         Group groupToUpdateList = groupRepository.findBy_groupId(request.get_groupId());
-        Player playerToUpdate = playerRepository.findBy_playerId(request.get_playerId());
-
-        groupToUpdateList.addOrRemovePlayer(playerToUpdate.get_playerId());
-        playerToUpdate.addOrRemoveGroupId(groupToUpdateList.get_groupId());
-
+        ObjectId playerId = playerService.addGroupIdToPlayer(request.get_playerId(), groupToUpdateList.get_groupId());
+        groupToUpdateList.addPlayer(playerId);
         groupRepository.save(groupToUpdateList);
-        playerRepository.save(playerToUpdate);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(groupToUpdateList.toString());
     }
-//    Well, this is expensive. Must be a better way...
+
+    public ResponseEntity<String> removePlayerfromGroup(@Valid UpdateGroupPlayersRequest request) {
+
+        Group groupToUpdateList = groupRepository.findBy_groupId(request.get_groupId());
+        ObjectId playerId = playerService.removeGroupIdFromPlayer(request.get_playerId());
+        groupToUpdateList.removePlayer(playerId);
+        groupRepository.save(groupToUpdateList);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(groupToUpdateList.toString());
+    }
+
     public ResponseEntity<String> removeGroup(String _groupId) {
         Group groupToRemove = groupRepository.findBy_groupId(_groupId);
 
@@ -80,9 +88,7 @@ public class GroupService {
 //    Should this return something??
     private void removeDeletedGroupIdFromAllPlayers(Group groupToRemove) {
         for (ObjectId playerId : groupToRemove.getPlayers()) {
-            Player playerToRemoveGroupId = playerRepository.findBy_playerId(playerId);
-            playerToRemoveGroupId.set_groupId(null);
-            playerRepository.save(playerToRemoveGroupId);
+            playerService.removeGroupIdFromPlayer(playerId.toString());
         }
     }
 }

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.project.asidesappbe.security.PlayerRole.GROUPADMIN;
+import static com.project.asidesappbe.security.PlayerRole.GROUPPLAYER;
 
 @Service
 public class PlayerService implements UserDetailsService {
@@ -23,10 +23,12 @@ public class PlayerService implements UserDetailsService {
     private PlayerRepository playerRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-//    @Autowired
-//    private JwtService jwtService;
 
     Player foundPlayerDetails;
+
+//    TO DO
+//    Update authorities of player when they create a new group
+//    Update authorities of player when they DELETE a group
 
     /*
     Redundant method now w/Spring Security??
@@ -51,7 +53,6 @@ public class PlayerService implements UserDetailsService {
             else {
                 return ResponseEntity
                         .status(HttpStatus.OK)
-//                        .header("Token", jwtService.generateToken(playerToLogin))
                         .body(foundPlayerDetails.toString());
             }
         }
@@ -69,12 +70,11 @@ public class PlayerService implements UserDetailsService {
 
         playerToSignUp.set_playerId(ObjectId.get());
         playerToSignUp.setPassword(passwordEncoder.encode(playerToSignUp.getPassword()));
-        playerToSignUp.setAuthorities(GROUPADMIN.getGrantedAuthorities());
+        playerToSignUp.setAuthorities(GROUPPLAYER.getGrantedAuthorities());
         playerRepository.save(playerToSignUp);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-//                .header("token", jwtService.generateToken(playerToSignUp))
                 .body(playerToSignUp.toString());
     }
 
@@ -102,5 +102,19 @@ public class PlayerService implements UserDetailsService {
      */
     public boolean userExists(String username) {
         return playerRepository.findByUsername(username).isPresent();
+    }
+
+    protected ObjectId addGroupIdToPlayer(String playerId, ObjectId groupId) {
+        Player player = playerRepository.findBy_playerId(playerId);
+        player.set_groupId(groupId);
+        playerRepository.save(player);
+        return player.get_playerId();
+    }
+
+    protected ObjectId removeGroupIdFromPlayer(String playerId) {
+        Player playerToRemoveGroupId = playerRepository.findBy_playerId(playerId);
+        playerToRemoveGroupId.set_groupId(null);
+        playerRepository.save(playerToRemoveGroupId);
+        return playerToRemoveGroupId.get_playerId();
     }
 }

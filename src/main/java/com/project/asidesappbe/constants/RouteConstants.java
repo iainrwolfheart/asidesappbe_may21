@@ -15,7 +15,8 @@ public final class RouteConstants {
 	public static final String DELETEBYID_ENDPOINT = "/deletebyid";
 	//	GROUP SPECIFIC
 	public static final String GETGROUPBYINVITECODE_ENDPOINT = "/getbyinvitecode";
-	public static final String UPDATEGROUPPLAYERS = "/addorremovegroupplayer";
+	public static final String ADDGROUPPLAYERS = "/players/add";
+	public static final String REMOVEGROUPPLAYERS = "/players/remove";
 //	MATCH SPECIFIC
 	public static final String UPDATEMATCHPLAYERS = "/addorremovematchplayer";
 

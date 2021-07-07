@@ -4,7 +4,6 @@ import com.project.asidesappbe.constants.RouteConstants;
 import com.project.asidesappbe.models.Requests.CreateGroupRequest;
 import com.project.asidesappbe.models.Requests.UpdateGroupPlayersRequest;
 import com.project.asidesappbe.repositories.GroupRepository;
-import com.project.asidesappbe.repositories.PlayerRepository;
 import com.project.asidesappbe.services.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,8 +22,6 @@ public class GroupController {
     GroupService groupService;
     @Autowired
     GroupRepository groupRepository;
-    @Autowired
-    PlayerRepository playerRepository;
 
     /*
     Returns JSON friendly toString of created group,
@@ -39,11 +36,21 @@ public class GroupController {
     /*
     Returns updated group details, including list of _playerIds tostring
      */
-    @PutMapping(value = RouteConstants.UPDATEGROUPPLAYERS)
+    @PutMapping(value = RouteConstants.ADDGROUPPLAYERS)
     @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
-    ResponseEntity<String> addOrRemoveGroupPlayer(
+    ResponseEntity<String> addGroupPlayer(
             @Valid @RequestBody UpdateGroupPlayersRequest request) {
-        return groupService.addOrRemovePlayerIdInGroupObject(request);
+        return groupService.addPlayerToGroup(request);
+    }
+
+    /*
+Returns updated group details, including list of _playerIds tostring
+ */
+    @PutMapping(value = RouteConstants.REMOVEGROUPPLAYERS)
+    @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
+    ResponseEntity<String> removeGroupPlayer(
+            @Valid @RequestBody UpdateGroupPlayersRequest request) {
+        return groupService.removePlayerfromGroup(request);
     }
 
     @GetMapping(value = RouteConstants.GETBYID_ENDPOINT + "/{_groupId}")
