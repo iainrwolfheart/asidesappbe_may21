@@ -10,11 +10,14 @@ import java.util.stream.Collectors;
 import static com.project.asidesappbe.security.PlayerPermission.*;
 
 public enum PlayerRole {
-    GROUPPLAYER(Sets.newHashSet(PLAYER_UPDATE)),
+    GROUPPLAYER(Sets.newHashSet(
+            PLAYER_UPDATE)
+    ),
     GROUPADMIN(Sets.newHashSet(
         MATCH_ADMIN,
         GROUP_ADMIN,
-        PLAYER_UPDATE));
+        PLAYER_UPDATE)
+    );
 
     private final Set<PlayerPermission> permissions;
 

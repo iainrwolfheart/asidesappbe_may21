@@ -28,7 +28,7 @@ public class GroupController {
     including the invite code and list of _playerIds toString
      */
     @PostMapping(value = RouteConstants.CREATE_ENDPOINT)
-    @PreAuthorize("hasRole('ROLE_GROUPADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
     ResponseEntity<String> createGroup(@Valid @RequestBody CreateGroupRequest groupToCreate) {
         return groupService.createGroupAndSaveIdToPlayer(groupToCreate);
     }

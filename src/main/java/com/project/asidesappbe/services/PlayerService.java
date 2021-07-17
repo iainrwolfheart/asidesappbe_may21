@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static com.project.asidesappbe.security.PlayerRole.GROUPADMIN;
 import static com.project.asidesappbe.security.PlayerRole.GROUPPLAYER;
 
 @Service
@@ -97,6 +98,10 @@ public class PlayerService implements UserDetailsService {
         else throw new UsernameNotFoundException("Email not found by loadUserByEmail method.");
     }
 
+    private Player loadPlayerByIdString(String _playerId) {
+        return playerRepository.findBy_playerId(_playerId);
+    }
+
     /*
     Currently only checks username uniqueness, NOT email...
      */
@@ -105,7 +110,7 @@ public class PlayerService implements UserDetailsService {
     }
 
     protected ObjectId addGroupIdToPlayer(String playerId, ObjectId groupId) {
-        Player player = playerRepository.findBy_playerId(playerId);
+        Player player = loadPlayerByIdString(playerId);
         player.set_groupId(groupId);
         playerRepository.save(player);
         return player.get_playerId();
@@ -113,8 +118,29 @@ public class PlayerService implements UserDetailsService {
 
     protected ObjectId removeGroupIdFromPlayer(String playerId) {
         Player playerToRemoveGroupId = playerRepository.findBy_playerId(playerId);
+
         playerToRemoveGroupId.set_groupId(null);
+        if (playerToRemoveGroupId.getAuthorities().contains(GROUPADMIN.getGrantedAuthorities())) {
+            playerToRemoveGroupId = removePlayerGroupAdminPrivileges(playerId);
+        }
         playerRepository.save(playerToRemoveGroupId);
         return playerToRemoveGroupId.get_playerId();
+    }
+
+    /*
+    Currently called by Group Service.createGroupAndSaveIdToPlayer, which assumes player has stock "PLAYER" role
+    (as this is the only role that can access createGroup endpoint currently), and therefore updates that player's
+    role to "ADMIN". Needs changing.
+     */
+    protected Player givePlayerGroupAdminPrivileges(String playerId) {
+        Player playerToUpdate = loadPlayerByIdString(playerId);
+        playerToUpdate.setAuthorities(GROUPADMIN.getGrantedAuthorities());
+        return playerRepository.save(playerToUpdate);
+    }
+
+    protected Player removePlayerGroupAdminPrivileges(String playerId) {
+        Player playerToUpdate = loadPlayerByIdString(playerId);
+        playerToUpdate.setAuthorities(GROUPPLAYER.getGrantedAuthorities());
+        return playerRepository.save(playerToUpdate);
     }
 }
