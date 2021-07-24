@@ -2,6 +2,7 @@ package com.project.asidesappbe.jwt;
 
 import com.google.common.base.Strings;
 import io.jsonwebtoken.JwtException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -43,13 +44,18 @@ public class JwtTokenValidityVerifier extends OncePerRequestFilter {
             System.out.println("Token cannot be trusted: " + jwte.getMessage());
         }
 
-        SecurityContextHolder.getContext().setAuthentication(
-                jwtTokenUtil.createNewAuthenticationFromValidToken(tokenToValidate));
+        Authentication updatedAuthentication = jwtTokenUtil.createNewAuthenticationFromValidToken(tokenToValidate);
+        SecurityContextHolder.getContext().setAuthentication(updatedAuthentication);
 
-        filterChain.doFilter(httpServletRequest, httpServletResponse);
+        httpServletResponse.addHeader(jwtConfig.getAuthorizationHeader(),
+                jwtConfig.getBearerPrefix() + jwtTokenUtil.generateNewToken(updatedAuthentication));
 
-//        Create Mongo Collection of in-use tokens
-//        Ability to delete tokens once expired
-//        Add to collection when new ones created.
+//        filterChain.doFilter(httpServletRequest, httpServletResponse);
+
+        /*
+        *   Create Mongo Collection of in-use tokens
+        *   Ability to delete tokens once expired
+        *   Add to collection when new ones created.
+         */
     }
 }
