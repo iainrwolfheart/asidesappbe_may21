@@ -67,6 +67,14 @@ public class Player implements UserDetails {
 		this._groupId = _groupId;
 	}
 
+	public void addOrRemoveGroupId(ObjectId groupId) {
+		if (this._groupId == null) {
+			this.set_groupId(groupId);
+		} else {
+			this.set_groupId(null);
+		}
+	}
+
 	@Override
 	public String getUsername() {
 		return username;

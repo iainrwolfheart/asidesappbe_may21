@@ -9,9 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.persistence.GeneratedValue;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Document(collection = "asidesGroups")
 public class Group {
@@ -23,7 +21,7 @@ public class Group {
 	private String groupName;
 	private String inviteCode;
 	@OneToMany(mappedBy = "asidesPlayers")
-	private List<ObjectId> players;
+	private Set<ObjectId> players;
 	@OneToOne(mappedBy = "asidesMatches")
 	private ObjectId _nextMatchId;
 
@@ -32,7 +30,7 @@ public class Group {
 //	Create Group Constructor
 	public Group(String groupName, ObjectId _playerId) {
 		this.groupName = groupName;
-		this.players = new ArrayList<>();
+		this.players = new HashSet<>();
 		this.players.add(_playerId);
 		this.inviteCode = generateInviteCode();
 	}
@@ -48,17 +46,16 @@ public class Group {
 		this.groupName = groupName;
 	}
 
-	public List<ObjectId> getPlayers() {
+	public Set<ObjectId> getPlayers() {
 		return players;
 	}
 
-	public List<ObjectId> addOrRemovePlayer(ObjectId _playerId) {
-		if (this.players.contains(_playerId)) {
-			this.players.remove(_playerId);
-		} else {
-			this.players.add(_playerId);
-		}
-		return new ArrayList<>(this.players);
+	public void addPlayer(ObjectId _playerId) {
+		this.players.add(_playerId);
+	}
+
+	public void removePlayer(ObjectId _playerId) {
+		this.players.remove(_playerId);
 	}
 
 	public String getInviteCode() {
