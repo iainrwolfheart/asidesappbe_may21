@@ -35,8 +35,6 @@ public class JwtTokenValidityVerifier extends OncePerRequestFilter {
 
         String tokenToValidate = authorizationHeader.replace(jwtConfig.getBearerPrefix(), "");
 
-//        Check username == username?? - playerService.loadByUsername()
-//        Check authorities == authorities??
         try {
             Boolean isvalidtoken = jwtTokenUtil.isValidToken(tokenToValidate);
         } catch (JwtException jwte) { //Thrown by the JwtTokenUtil.getAllClaims...() method in validation attempt
@@ -47,15 +45,11 @@ public class JwtTokenValidityVerifier extends OncePerRequestFilter {
         Authentication updatedAuthentication = jwtTokenUtil.createNewAuthenticationFromValidToken(tokenToValidate);
         SecurityContextHolder.getContext().setAuthentication(updatedAuthentication);
 
+//        THIS SEEMS TO BE OVERRIDDEN BY THE NEXT LINE SIGNALLING THE OTHER FILTER. BUT THAT LINE IS NEEDED
+//        FOR ALL ENDPOINTS TO WORK. SO THE QUESTION IS HOW TO GET A REFRESHED TOKEN INTO EVERY HEADER..?
         httpServletResponse.addHeader(jwtConfig.getAuthorizationHeader(),
                 jwtConfig.getBearerPrefix() + jwtTokenUtil.generateNewToken(updatedAuthentication));
 
-//        filterChain.doFilter(httpServletRequest, httpServletResponse);
-
-        /*
-        *   Create Mongo Collection of in-use tokens
-        *   Ability to delete tokens once expired
-        *   Add to collection when new ones created.
-         */
+        filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 }

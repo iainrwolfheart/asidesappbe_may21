@@ -60,7 +60,7 @@ public class JwtTokenUtil {
 
     protected boolean isValidToken(String token) {
         String username = getUsernameFromToken(token);
-        return playerService.userExists(username) && !isTokenExpired(token);
+        return playerService.usernameExists(username) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {

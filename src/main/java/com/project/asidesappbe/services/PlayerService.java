@@ -25,58 +25,29 @@ public class PlayerService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    Player foundPlayerDetails;
-
-//    TO DO
-//    Update authorities of player when they create a new group
-//    Update authorities of player when they DELETE a group
-
-    /*
-    Redundant method now w/Spring Security??
-     */
-    public ResponseEntity<String> loginPlayer(Player playerToLogin) {
-        //		ADD OPTION FOR USER TO ENTER USERNAME INSTEAD OF EMAIL! - MODEL
-        Optional<Player> foundPlayerDetails = loadUserByEmail(playerToLogin.getEmail());
-
-        if (!foundPlayerDetails.isPresent()) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Unsuccessful login: Email not found.");
-        }
-        else {
-            Boolean isPasswordCorrect = passwordEncoder.matches(playerToLogin.getPassword(), foundPlayerDetails.get().getPassword());
-
-            if (!isPasswordCorrect) {
-                return ResponseEntity
-                        .status(HttpStatus.UNAUTHORIZED)
-                        .body("Unsuccessful login: Incorrect password");
-            }
-            else {
-                return ResponseEntity
-                        .status(HttpStatus.OK)
-                        .body(foundPlayerDetails.toString());
-            }
-        }
-    }
-
-    /*
-    Currently sets all registering users to GROUP_ADMIN privileges
-     */
+    /** Registers a new player
+     * If exception is thrown, it indicates that either the username or email already exists in the database.
+     * A getLocalizedMessage() is added to response body. This String can be parsed to ascertain the causing field
+     * @param playerToSignUp includes username, email & password
+     * @return responseEntity sent back to calling application via the Controller. Includes CREATED status and
+     * useful information about the player through player.toString() method.
+    */
     public ResponseEntity<String> registerPlayer(Player playerToSignUp) {
-        if (userExists(playerToSignUp.getUsername())) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body("User already exists.");
-        }
-
         playerToSignUp.set_playerId(ObjectId.get());
         playerToSignUp.setPassword(passwordEncoder.encode(playerToSignUp.getPassword()));
         playerToSignUp.setAuthorities(GROUPPLAYER.getGrantedAuthorities());
-        playerRepository.save(playerToSignUp);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(playerToSignUp.toString());
+        try {
+            playerRepository.save(playerToSignUp);
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(playerToSignUp.toString());
+        } catch (Exception mwe) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(mwe.getLocalizedMessage());
+        }
     }
 
     @Override
@@ -89,23 +60,11 @@ public class PlayerService implements UserDetailsService {
         else throw new UsernameNotFoundException("Username not found by loadUserByUsername method.");
     }
 
-    public Optional<Player> loadUserByEmail(String email) throws UsernameNotFoundException {
-
-        final Optional<Player> foundPlayer = playerRepository.findByEmail(email);
-
-        if (foundPlayer.isPresent()) return foundPlayer;
-
-        else throw new UsernameNotFoundException("Email not found by loadUserByEmail method.");
-    }
-
     private Player loadPlayerByIdString(String _playerId) {
         return playerRepository.findBy_playerId(_playerId);
     }
 
-    /*
-    Currently only checks username uniqueness, NOT email...
-     */
-    public boolean userExists(String username) {
+    public boolean usernameExists(String username) {
         return playerRepository.findByUsername(username).isPresent();
     }
 

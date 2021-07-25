@@ -4,6 +4,7 @@ import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.GeneratedValue;
@@ -17,8 +18,8 @@ public class Group {
 	@Id
 	@GeneratedValue
 	private ObjectId _groupId;
-
 	private String groupName;
+	@Indexed(unique = true)
 	private String inviteCode;
 	@OneToMany(mappedBy = "asidesPlayers")
 	private Set<ObjectId> players;

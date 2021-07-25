@@ -4,7 +4,6 @@ public final class RouteConstants {
 
 //	MESSY
 	public static final String LITE_ENDPOINT = "/litegroup";
-	public static final String LOGIN_ENDPOINT = "/login";
 	public static final String REGISTER_ENDPOINT = "/register";
 	public static final String LOGOUT_ENDPOINT = "/logout";
 //	SHARED
