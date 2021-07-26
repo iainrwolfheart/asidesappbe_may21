@@ -79,27 +79,19 @@ public class PlayerService implements UserDetailsService {
         Player playerToRemoveGroupId = playerRepository.findBy_playerId(playerId);
 
         playerToRemoveGroupId.set_groupId(null);
-        if (playerToRemoveGroupId.getAuthorities().contains(GROUPADMIN.getGrantedAuthorities())) {
-            playerToRemoveGroupId = removePlayerGroupAdminPrivileges(playerId);
+        if (playerToRemoveGroupId.getAuthorities()
+                .stream()
+                .anyMatch(ga -> ga.getAuthority().equals("ROLE_GROUPADMIN"))
+        ) {
+            playerToRemoveGroupId.setAuthorities(GROUPPLAYER.getGrantedAuthorities());
         }
         playerRepository.save(playerToRemoveGroupId);
         return playerToRemoveGroupId.get_playerId();
     }
 
-    /*
-    Currently called by Group Service.createGroupAndSaveIdToPlayer, which assumes player has stock "PLAYER" role
-    (as this is the only role that can access createGroup endpoint currently), and therefore updates that player's
-    role to "ADMIN". Needs changing.
-     */
     protected Player givePlayerGroupAdminPrivileges(String playerId) {
         Player playerToUpdate = loadPlayerByIdString(playerId);
         playerToUpdate.setAuthorities(GROUPADMIN.getGrantedAuthorities());
-        return playerRepository.save(playerToUpdate);
-    }
-
-    protected Player removePlayerGroupAdminPrivileges(String playerId) {
-        Player playerToUpdate = loadPlayerByIdString(playerId);
-        playerToUpdate.setAuthorities(GROUPPLAYER.getGrantedAuthorities());
         return playerRepository.save(playerToUpdate);
     }
 }
