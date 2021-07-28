@@ -23,9 +23,9 @@ public class GroupController {
     @Autowired
     GroupRepository groupRepository;
 
-    /*
-    Returns JSON friendly toString of created group,
-    including the invite code and list of _playerIds toString
+    /**
+     * @param groupToCreate, comprising required groupName and the String id of the player initiating the call
+     * @return Group.toString(), currently including the invite code and list of _playerIds toString
      */
     @PostMapping(value = RouteConstants.CREATE_ENDPOINT)
     @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
@@ -33,8 +33,9 @@ public class GroupController {
         return groupService.createGroupAndSaveIdToPlayer(groupToCreate);
     }
 
-    /*
-    Returns updated group details, including list of _playerIds tostring
+    /**
+     * @param request comprising String id of group and String id of player to add
+     * @return Group.toString(), currently including the invite code and list of _playerIds toString
      */
     @PutMapping(value = RouteConstants.ADDGROUPPLAYERS)
     @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
@@ -43,9 +44,10 @@ public class GroupController {
         return groupService.addPlayerToGroup(request);
     }
 
-    /*
-Returns updated group details, including list of _playerIds tostring
- */
+    /**
+     * @param request comprising String id of group and String id of player to delete
+     * @return Group.toString(), currently including the invite code and list of _playerIds toString
+     */
     @PutMapping(value = RouteConstants.REMOVEGROUPPLAYERS)
     @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
     ResponseEntity<String> removeGroupPlayer(
@@ -53,6 +55,10 @@ Returns updated group details, including list of _playerIds tostring
         return groupService.removePlayerfromGroup(request);
     }
 
+    /**
+     * @param _groupId as String
+     * @return Group.toString()
+     */
     @GetMapping(value = RouteConstants.GETBYID_ENDPOINT + "/{_groupId}")
     @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
     ResponseEntity<String> getGroupById(@Valid @PathVariable String _groupId) {
@@ -62,10 +68,13 @@ Returns updated group details, including list of _playerIds tostring
                 .body(groupRepository.findBy_groupId(_groupId).toString());
     }
 
-    /*
-    Currently one reusable invite code per group.
-    Used when a new user is signing up with an invite code shared by another user to retrieve group
-    details. When new user confirms to join group, use _groupId in addOrRemove... endpoint.
+    /**
+     * Used when a player registering has an invite code shared with them.
+     * Their reg details are first saved and then this endpoint fetches the group to make use of the
+     * addPlayerToGroup endpoint.
+     * Currently only one reusable invite code per group. This will be refactored to a limited array per group.
+     * @param inviteCode
+     * @return Group.toString()
      */
     @GetMapping(value = RouteConstants.GETGROUPBYINVITECODE_ENDPOINT + "/{inviteCode}")
     @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
@@ -76,7 +85,12 @@ Returns updated group details, including list of _playerIds tostring
                 .body(groupRepository.findByInviteCode(inviteCode).toString());
     }
 
-//    Delete Group Endpoint needs to remove _groupId from all players
+    /**
+     * Endpoint used to delete a group and remove its' ID from it's players.
+     * Also replaces any GROUPADMIN_ROLE authorities w/GROUPPLAYER_ROLE authorities.
+     * @param _groupId
+     * @return NO_CONTENT status
+     */
     @DeleteMapping(value = RouteConstants.DELETEBYID_ENDPOINT + "/{_groupId}")
     @PreAuthorize("hasRole('ROLE_GROUPADMIN')")
     ResponseEntity<String> deleteGroup(@Valid @PathVariable String _groupId) {
