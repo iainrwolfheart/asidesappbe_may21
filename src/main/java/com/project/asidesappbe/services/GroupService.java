@@ -28,22 +28,18 @@ public class GroupService {
 
         Player player = playerService.givePlayerGroupAdminPrivileges(groupToCreate.get_playerId());
 
-        Group savedGroup = saveNewGroup(
+        Group savedGroup = groupRepository.save(
             new Group(
                     groupToCreate.getGroupName(),
                     player.get_playerId()
             )
         );
-//        Get groupId and set to player
+
         playerService.addGroupIdToPlayer(player.get_playerId().toString(), savedGroup.get_groupId());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(savedGroup.toString());
-    }
-//     Is this needed??
-    private Group saveNewGroup(Group groupToSave) {
-        return groupRepository.save(groupToSave);
     }
 
     public ResponseEntity<String> addPlayerToGroup(@Valid UpdateGroupPlayersRequest request) {

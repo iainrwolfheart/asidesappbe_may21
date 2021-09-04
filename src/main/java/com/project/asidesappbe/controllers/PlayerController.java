@@ -5,8 +5,8 @@ import com.project.asidesappbe.models.Player;
 import com.project.asidesappbe.repositories.PlayerRepository;
 import com.project.asidesappbe.services.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -23,23 +23,22 @@ public class PlayerController {
 
     Player foundPlayerDetails;
 
-    /*
-    This endpoint likely redundant now.
-    Spring Security default endpoint for hitting the appropriate filters is /login.
-    As long as the returned JWT contains relevant data, this can be bye-byed
-     */
-    @PostMapping(value = RouteConstants.LOGIN_ENDPOINT)
-    @PreAuthorize("hasAnyRole('ROLE_GROUPADMIN', 'ROLE_GROUPPLAYER')")
-    ResponseEntity<String> login(@Valid @RequestBody Player player) {
-		return playerService.loginPlayer(player);
-    }
-
-    /*
-    Client will need to fire both registration req and then, if reg successful, fire a login req in order
-    to return a JWT and populate homepage
+    /**
+     * @param player
+     * @return responseEntity sent back to calling application. Includes CREATED status and useful information
+     * about the player through player.toString() method.
+     * Assuming a CREATED status is received, the client application should fire a further call to /login
+     * in order to retrieve a JWT and access other endpoints
      */
     @PostMapping(value = RouteConstants.REGISTER_ENDPOINT)
     ResponseEntity<String> register(@Valid @RequestBody Player player) {
 		return playerService.registerPlayer(player);
     }
-}
+
+    @RequestMapping(value = RouteConstants.LOGOUT_ENDPOINT, method = RequestMethod.POST)
+    public ResponseEntity<String> logout(@Valid @RequestBody String jwt) {
+
+//        Invalidate JWT?
+
+        return ResponseEntity.status(HttpStatus.OK).body("Logout Successful");
+    }}

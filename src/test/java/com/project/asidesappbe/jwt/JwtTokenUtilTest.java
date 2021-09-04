@@ -51,14 +51,14 @@ class JwtTokenUtilTest {
     @Test
     @DisplayName("Test a valid token passes expiry check")
     void testValidTokenPassesExpirationChecks() {
-        when(playerService.userExists("testPlayer")).thenReturn(true);
+        when(playerService.usernameExists("testPlayer")).thenReturn(true);
         assertTrue(jwtTokenUtil.isValidToken(testToken));
     }
 
     @Test
     @DisplayName("An expired token should throw a JwtException.")
     void testExpiredTokenThrowsException() {
-        when(playerService.userExists("testPlayer")).thenReturn(true);
+        when(playerService.usernameExists("testPlayer")).thenReturn(true);
         this.jwtConfig.setTokenValidityTimeInDays(0);
         String failToken = jwtTokenUtil.generateNewToken(testAuthentication);
         try {
@@ -72,7 +72,7 @@ class JwtTokenUtilTest {
     @Test
     @DisplayName("A token should fail validity checks when the Claim username doesn't exist in DB.")
     void testValidityCheckReturnsFalseWhenUsernameNotFound() {
-        when(playerService.userExists("testPlayer")).thenReturn(false);
+        when(playerService.usernameExists("testPlayer")).thenReturn(false);
         assertFalse(jwtTokenUtil.isValidToken(testToken));
     }
 

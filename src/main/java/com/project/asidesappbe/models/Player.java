@@ -3,6 +3,7 @@ package com.project.asidesappbe.models;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +23,9 @@ public class Player implements UserDetails {
 	@ManyToOne
 	@JoinColumn(name="_groupId")
 	private ObjectId _groupId;
+	@Indexed(unique = true)
 	private String username;
+	@Indexed(unique = true)
 	private String email;
 	private String password;
 	private int rating = 50;

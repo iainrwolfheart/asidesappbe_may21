@@ -2,6 +2,7 @@ package com.project.asidesappbe.jwt;
 
 import com.google.common.base.Strings;
 import io.jsonwebtoken.JwtException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -10,6 +11,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 
 public class JwtTokenValidityVerifier extends OncePerRequestFilter {
 
@@ -34,22 +37,22 @@ public class JwtTokenValidityVerifier extends OncePerRequestFilter {
 
         String tokenToValidate = authorizationHeader.replace(jwtConfig.getBearerPrefix(), "");
 
-//        Check username == username?? - playerService.loadByUsername()
-//        Check authorities == authorities??
         try {
-            Boolean isvalidtoken = jwtTokenUtil.isValidToken(tokenToValidate);
+            if(jwtTokenUtil.isValidToken(tokenToValidate)) {
+                Authentication updatedAuthentication = jwtTokenUtil.createNewAuthenticationFromValidToken(tokenToValidate);
+                SecurityContextHolder.getContext().setAuthentication(updatedAuthentication);
+
+                httpServletResponse.addHeader(jwtConfig.getAuthorizationHeader(),
+                        jwtConfig.getBearerPrefix() + jwtTokenUtil.generateNewToken(updatedAuthentication));
+            }
+
         } catch (JwtException jwte) { //Thrown by the JwtTokenUtil.getAllClaims...() method in validation attempt
 //            Better error handling needed here...
             System.out.println("Token cannot be trusted: " + jwte.getMessage());
+            httpServletResponse.setHeader("error", jwte.getMessage());
+            httpServletResponse.setStatus(SC_FORBIDDEN);
         }
 
-        SecurityContextHolder.getContext().setAuthentication(
-                jwtTokenUtil.createNewAuthenticationFromValidToken(tokenToValidate));
-
         filterChain.doFilter(httpServletRequest, httpServletResponse);
-
-//        Create Mongo Collection of in-use tokens
-//        Ability to delete tokens once expired
-//        Add to collection when new ones created.
     }
 }
